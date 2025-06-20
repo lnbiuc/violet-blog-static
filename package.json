@@ -31,5 +31,10 @@
     "pinyin-pro": "^3.26.0",
     "remark-behead": "^3.1.0",
     "unstorage": "^1.16.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "sharp": "0.33.4"
+    }
   }
 }

@@ -36,6 +36,11 @@ export default defineNuxtConfig({
         },
       },
     },
+    components: {
+      map: {
+        img: 'ImageRender',
+      },
+    },
     highlight: {
       theme: {
         default: 'github-light',
