@@ -1,15 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 // server/plugins/fetch-github-articles.server.ts
 import {Octokit} from 'octokit'
 import {promises as fs} from 'fs'
 import {join} from 'path'
 import {extractFileName, parseName} from "~/server/utils"
-
+import {parseMarkdown} from '@nuxtjs/mdc/runtime'
 
 interface ArticleInfo {
     name: string
     path: string
     sha: string
-    filename: string // 实际存储的文件名（sha值）
 }
 
 interface CacheManifest {
@@ -57,18 +58,17 @@ export default defineNitroPlugin(async () => {
             const manifestContent = await fs.readFile(manifestPath, 'utf-8')
             existingManifest = JSON.parse(manifestContent)
         } catch (error) {
-            console.log('[nuxt] No existing manifest found, will create new one')
+            console.error('[nuxt] No existing manifest found, will create new one', error)
         }
 
         // 创建当前文件映射
         const currentFiles = new Map<string, any>()
-        mdFiles.forEach(file => {
+        mdFiles.forEach((file: any) => {
             currentFiles.set(file.sha, file)
         })
 
         // 创建已存在文件映射
         const existingFiles = new Map<string, ArticleInfo>()
-
         existingManifest.articles.forEach(article => {
             existingFiles.set(article.sha, article)
         })
@@ -80,13 +80,13 @@ export default defineNitroPlugin(async () => {
         for (const [sha, file] of currentFiles) {
             const existing = existingFiles.get(sha)
 
-            if (!existing || existing.sha !== file.sha) {
-                // 新文件或已修改的文件
+            if (!existing) {
+                // 新文件
                 filesToDownload.push({
                     file,
-                    isNew: !existing
+                    isNew: true
                 })
-                console.log(`[nuxt] ${existing ? 'Modified' : 'New'} file detected: ${file.path}`)
+                console.log(`[nuxt] New file detected: ${file.path}`)
             } else {
                 // 文件未修改，保留现有信息
                 newArticles.push(existing)
@@ -95,25 +95,25 @@ export default defineNitroPlugin(async () => {
 
         // 检查需要删除的文件
         const filesToDelete: ArticleInfo[] = []
-        for (const [path, article] of existingFiles) {
-            if (!currentFiles.has(path)) {
+        for (const [sha, article] of existingFiles) {
+            if (!currentFiles.has(sha)) {
                 filesToDelete.push(article)
-                console.log(`[nuxt] File to be deleted: ${path}`)
+                console.log(`[nuxt] File to be deleted: ${article.path}`)
             }
         }
 
         // 删除不再存在的文件
         for (const article of filesToDelete) {
             try {
-                const filePath = join(contentDir, `${article.filename}.md`)
-                await fs.unlink(filePath)
-                console.log(`[nuxt] Deleted: ${article.filename}.md`)
+                const jsonFilePath = join(contentDir, `${article.sha}.json`)
+                await fs.unlink(jsonFilePath)
+                console.log(`[nuxt] Deleted: ${article.sha}.json`)
             } catch (error) {
-                console.warn(`[nuxt] Failed to delete ${article.filename}.md`)
+                console.warn(`[nuxt] Failed to delete ${article.sha}.json:`, error)
             }
         }
 
-        // 下载新文件和修改的文件
+        // 下载新文件并编译为JSON
         for (const {file, isNew} of filesToDownload) {
             try {
                 const {data: rawContent} = await octokit.request(
@@ -129,37 +129,27 @@ export default defineNitroPlugin(async () => {
                 if (rawContent) {
                     const slug = parseName(file.path)
                     const filename = file.sha
-                    const filePath = join(contentDir, `${filename}.md`)
 
-                    // 如果是修改的文件，先删除旧文件
-                    if (!isNew) {
-                        const oldArticle = existingFiles.get(file.path)
-                        if (oldArticle && oldArticle.filename !== filename) {
-                            try {
-                                const oldFilePath = join(contentDir, `${oldArticle.filename}.md`)
-                                await fs.unlink(oldFilePath)
-                                console.log(`[nuxt] Deleted old version: ${oldArticle.filename}.md`)
-                            } catch (error) {
-                                console.warn(`[nuxt] Failed to delete old version:`, error)
-                            }
-                        }
-                    }
+                    // 编译 markdown 为 JSON
+                    console.time(`compile-${filename}`)
+                    const compile = await parseMarkdown(rawContent as any)
+                    console.timeEnd(`compile-${filename}`)
 
-                    // 写入新文件
-                    await fs.writeFile(filePath, rawContent, 'utf-8')
+                    // 保存编译后的 JSON 文件
+                    const jsonFilePath = join(contentDir, `${filename}.json`)
+                    await fs.writeFile(jsonFilePath, JSON.stringify(compile, null, 2), 'utf-8')
 
                     const articleInfo: ArticleInfo = {
                         name: extractFileName(file.path),
                         path: slug,
                         sha: file.sha,
-                        filename: filename
                     }
 
                     newArticles.push(articleInfo)
-                    console.log(`[nuxt] ${isNew ? 'Downloaded' : 'Updated'}: ${filename}.md`)
+                    console.log(`[nuxt] ${isNew ? 'Downloaded' : 'Updated'} and compiled: ${filename}.json`)
                 }
             } catch (error) {
-                console.error(`[nuxt] Failed to download ${file.path}:`, error)
+                console.error(`[nuxt] Failed to download and compile ${file.path}:`, error)
             }
         }
 
@@ -175,6 +165,7 @@ export default defineNitroPlugin(async () => {
         console.log(`[nuxt] Total articles: ${newArticles.length}`)
         console.log(`[nuxt] Downloaded/Updated: ${filesToDownload.length} files`)
         console.log(`[nuxt] Deleted: ${filesToDelete.length} files`)
+        console.log(`[nuxt] All articles compiled to JSON format in content directory`)
 
     } catch (error) {
         console.error('[nuxt] Failed to fetch GitHub articles:', error)

@@ -1,3 +1,5 @@
+ 
+
 // server/api/article/[slug].get.ts
 import { promises as fs } from 'fs'
 import { join } from 'path'
@@ -6,7 +8,6 @@ interface ArticleInfo {
     name: string
     path: string
     sha: string
-    filename: string
 }
 
 interface CacheManifest {
@@ -40,7 +41,7 @@ export default defineEventHandler(async (event) => {
         }
 
         // 读取对应的markdown文件
-        const articlePath = join(contentDir, `${articleInfo.filename}.md`)
+        const articlePath = join(contentDir, `${articleInfo.sha}.json`)
         const articleContent = await fs.readFile(articlePath, 'utf-8')
 
         // 设置响应头
@@ -49,27 +50,12 @@ export default defineEventHandler(async (event) => {
         return articleContent
 
     } catch (error) {
-        // 如果是文件不存在的错误
-        if (error.code === 'ENOENT') {
-            throw createError({
-                statusCode: 404,
-                statusMessage: `Article '${slug}' not found or content directory not initialized`
-            })
-        }
 
-        // 如果是 JSON 解析错误
-        if (error instanceof SyntaxError) {
+        if (error) {
             throw createError({
                 statusCode: 500,
                 statusMessage: 'Invalid manifest file format'
             })
         }
-
-        // 其他错误
-        console.error(`Error reading article '${slug}':`, error)
-        throw createError({
-            statusCode: 500,
-            statusMessage: 'Internal server error'
-        })
     }
 })

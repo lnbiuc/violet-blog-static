@@ -16,7 +16,6 @@ interface CacheManifest {
 
 interface ArticleListItem {
     name: string
-    url: string
     slug: string
 }
 
@@ -46,27 +45,12 @@ export default defineEventHandler(async (event) => {
         }
 
     } catch (error) {
-        // 如果是文件不存在的错误
-        if (error.code === 'ENOENT') {
-            throw createError({
-                statusCode: 404,
-                statusMessage: 'Article list not found. Please ensure articles are fetched first.'
-            })
-        }
 
-        // 如果是 JSON 解析错误
-        if (error instanceof SyntaxError) {
+        if (error) {
             throw createError({
                 statusCode: 500,
                 statusMessage: 'Invalid manifest file format'
             })
         }
-
-        // 其他错误
-        console.error('Error reading article list:', error)
-        throw createError({
-            statusCode: 500,
-            statusMessage: 'Failed to load article list'
-        })
     }
 })
