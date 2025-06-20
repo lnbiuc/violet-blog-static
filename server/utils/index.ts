@@ -1,5 +1,9 @@
 import { pinyin } from 'pinyin-pro'
 
+/**
+ * 将file path转为拼音拼接
+ * @param filePath 文件路径
+ */
 export function parseName(filePath: string): string {
     const cleanPath = filePath.replace(/\.(md|markdown)$/i, '')
     const parts: string[] = []
@@ -39,4 +43,17 @@ export function parseName(filePath: string): string {
         .replace(/-+/g, '-')   // 合并重复 -
         .replace(/^-|-$/g, '') // 去除首尾 -
         .toLowerCase()
+}
+
+/**
+ * 从路径中提取文件名
+ * @param path
+ */
+export function extractFileName(path: string): string {
+    const parts = path.split('/');
+    const fileNameWithExt = parts[parts.length - 1];
+    const dotIndex = fileNameWithExt.lastIndexOf('.');
+    return dotIndex !== -1
+        ? fileNameWithExt.substring(0, dotIndex)
+        : fileNameWithExt;
 }

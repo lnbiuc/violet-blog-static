@@ -4,7 +4,10 @@
 
 <template>
 <div>
-  about
+  <div>
+    about
+  </div>
+  <NuxtLink to="/">Index</NuxtLink>
 </div>
 </template>
 
