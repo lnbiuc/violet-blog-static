@@ -25,9 +25,6 @@ const { data } = await useFetch<ArticleListResponse>('/api/article/list')
       <li>
         <NuxtLink to="/about">About</NuxtLink>
       </li>
-      <li>
-        <NuxtLink to="/article/A">Article A</NuxtLink>
-      </li>
     </ul>
     <hr>
 

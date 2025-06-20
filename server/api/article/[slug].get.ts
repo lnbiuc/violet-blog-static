@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
         const articleContent = await fs.readFile(articlePath, 'utf-8')
 
         // 设置响应头
-        setHeader(event, 'Content-Type', 'text/plain; charset=utf-8')
+        setHeader(event, 'Content-Type', 'application/json; charset=utf-8')
 
         return articleContent
 
