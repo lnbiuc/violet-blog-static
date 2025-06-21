@@ -6,28 +6,8 @@ import { promises as fs } from 'fs'
 import { join } from 'path'
 import { extractFileName, parseName } from "~/server/utils"
 import { parseMarkdown } from '@nuxtjs/mdc/runtime'
+import { type CacheManifest, type ArticleInfo, type ImageManifest, type ImageInfo, CacheKey } from '~/server/module'
 
-interface ArticleInfo {
-    name: string
-    path: string
-    sha: string
-}
-
-interface CacheManifest {
-    articles: ArticleInfo[]
-    lastUpdate: string
-}
-
-interface ImageInfo {
-    name: string
-    sha: string
-    path: string
-}
-
-interface ImageManifest {
-    images: ImageInfo[]
-    lastUpdate: string
-}
 
 export default defineNitroPlugin(async () => {
     const config = useRuntimeConfig()
@@ -193,10 +173,19 @@ export default defineNitroPlugin(async () => {
             articles: newArticles,
             lastUpdate: new Date().toISOString()
         }
-
+        await storage.removeItem(CacheKey.articleManifest, newManifest)
         await fs.writeFile(manifestPath, JSON.stringify(newManifest, null, 2), 'utf-8')
+        await storage.setItem(CacheKey.articleManifest, newManifest)
 
-        console.log(`[nuxt] Cache updated successfully`)
+        newManifest.articles.forEach(async (article) => {
+            const articleCacheKey = `${CacheKey.articleContent}${article.sha}`
+            const articlePath = join(contentDir, `${article.sha}.json`)
+            const articleContent = await fs.readFile(articlePath, 'utf-8')  
+            await storage.setItem(articleCacheKey, articleContent)
+            console.log(`[nuxt] Save to cache: ${article.name} `)
+        })
+        console.log(`[nuxt] All Article Saved to Cache`)
+
         console.log(`[nuxt] Total articles: ${newArticles.length}`)
         console.log(`[nuxt] Downloaded/Updated: ${filesToDownload.length} files`)
         console.log(`[nuxt] Deleted: ${filesToDelete.length} files`)
@@ -225,7 +214,7 @@ function sanitizeFileName(fileName: string): string {
         .replace(/\s+/g, '-')  // 将连续空格替换为单个连字符
         .replace(/-+/g, '-')   // 将连续连字符替换为单个连字符
         .replace(/^-|-$/g, '') // 移除开头和结尾的连字符
-}
+}   
 
 // 处理图片文件下载
 async function processImages(

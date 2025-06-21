@@ -7,7 +7,7 @@
   <div>
     about
   </div>
-  <NuxtLink to="/">Index</NuxtLink>
+  <ULink to="/">Index</ULink>
 </div>
 </template>
 

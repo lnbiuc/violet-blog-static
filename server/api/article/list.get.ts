@@ -1,6 +1,5 @@
 // server/api/articles.get.ts (或相应的API文件)
-import {promises as fs} from 'fs'
-import {join} from 'path'
+import { CacheKey } from '~/server/module'
 
 interface ArticleInfo {
     name: string
@@ -22,12 +21,19 @@ interface ArticleListItem {
 export default defineEventHandler(async (event) => {
     try {
         // 读取 manifest.json 文件
-        const contentDir = join(process.cwd(), 'public', 'content')
-        const manifestPath = join(contentDir, 'manifest.json')
+        // const contentDir = join(process.cwd(), 'public', 'content')
+        // const manifestPath = join(contentDir, 'manifest.json')
 
-        const manifestContent = await fs.readFile(manifestPath, 'utf-8')
-        const manifest: CacheManifest = JSON.parse(manifestContent)
-
+        // const manifestContent = await fs.readFile(manifestPath, 'utf-8')
+        
+        const manifest = await storage.getItem<CacheManifest>(CacheKey.articleManifest)
+        if (!manifest) {
+            throw createError({
+                statusCode: 500,
+                statusMessage: 'Invalid manifest file format'
+            })
+        }
+        // const manifest: CacheManifest = JSON.parse(manifestContent)
         // 转换为前端需要的格式
         const articleList: ArticleListItem[] = manifest.articles.map(article => ({
             name: article.name,

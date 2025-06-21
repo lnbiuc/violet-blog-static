@@ -23,7 +23,7 @@ const { data } = await useFetch<ArticleListResponse>('/api/article/list')
     index
     <ul>
       <li>
-        <NuxtLink to="/about">About</NuxtLink>
+        <ULink to="/about">About</ULink>
       </li>
     </ul>
     <hr>
@@ -32,7 +32,7 @@ const { data } = await useFetch<ArticleListResponse>('/api/article/list')
       <!-- 修正：应该是 data.articles 而不是 data.article -->
       <ul v-if="data">
         <li v-for="article in data.articles" :key="article.slug">
-          <NuxtLink :to="`/article/${article.slug}`">{{ article.name }}</NuxtLink>
+          <ULink :to="`/article/${article.slug}`">{{ article.name }}</ULink>
         </li>
       </ul>
       <div v-else>
