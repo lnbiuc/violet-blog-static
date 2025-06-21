@@ -158,7 +158,7 @@ export default defineNitroPlugin(async () => {
                     const filename = file.sha
 
                     // 转换 Obsidian 图片链接格式
-                    const processedContent = convertObsidianImages(rawContent as string)
+                    const processedContent = convertObsidianImages(rawContent as unknown as string)
 
                     // Debug: 保存处理后的 markdown 文件
                     const debugFilePath = join(debugDir, `${filename}.md`)
@@ -247,7 +247,7 @@ async function processImages(
         const imageManifestContent = await fs.readFile(imageManifestPath, 'utf-8')
         existingImageManifest = JSON.parse(imageManifestContent)
     } catch (error) {
-        console.log('[nuxt] No existing image manifest found, will create new one')
+        console.error('[nuxt] No existing image manifest found, will create new one', error)
     }
 
     // 创建当前图片文件映射
