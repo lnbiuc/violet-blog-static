@@ -17,6 +17,7 @@
     "@nuxt/image": "1.10.0",
     "@nuxt/scripts": "0.11.8",
     "@nuxt/ui": "3.1.3",
+    "@nuxtjs/color-mode": "3.5.2",
     "@nuxtjs/mdc": "0.17.0",
     "@unhead/vue": "^2.0.10",
     "eslint": "^9.29.0",
@@ -30,6 +31,7 @@
     "octokit": "^5.0.3",
     "pinyin-pro": "^3.26.0",
     "remark-behead": "^3.1.0",
+    "tailwindcss": "^3.4.17",
     "unstorage": "^1.16.0"
   },
   "pnpm": {

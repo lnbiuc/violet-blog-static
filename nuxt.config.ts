@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   modules: [// '@nuxt/content',
-  '@nuxt/eslint', '@nuxt/fonts', '@nuxt/icon', '@nuxt/image', '@nuxt/scripts', '@nuxt/ui', '@nuxtjs/mdc'],
+  '@nuxt/eslint', '@nuxt/fonts', '@nuxt/icon', '@nuxt/image', '@nuxt/scripts', '@nuxt/ui', '@nuxtjs/mdc', '@nuxtjs/color-mode'],
   nitro: {
     storage: {
       articles: {

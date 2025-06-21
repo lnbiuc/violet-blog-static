@@ -1,0 +1,47 @@
+.dark a {
+  color: #fff;
+}
+
+a {
+  color: #000;
+}
+
+.dark a:visited {
+  color: #fff;
+}
+
+a:visited {
+  color: #000;
+}
+
+body {
+  background-color: #fff;
+  color: #000;
+}
+
+.dark body {
+  background-color: #000;
+  color: #ebf4f1;
+}
+
+.sepia body {
+  background-color: #f1e7d0;
+  color: #433422;
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+pre {
+  background-color: rgb(241 245 249 / var(--tw-bg-opacity, 1));
+  padding: 15px;
+  overflow-x: scroll;
+}
+
+.dark pre {
+  background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
+}
