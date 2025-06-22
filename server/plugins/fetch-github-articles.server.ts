@@ -152,6 +152,11 @@ export default defineNitroPlugin(async () => {
 
                     // 保存编译后的 JSON 文件
                     const jsonFilePath = join(contentDir, `${filename}.json`)
+                    const hidden = compile.data?.hidden
+                    if (hidden) {
+                        console.log(`[nuxt] Hidden Article: ${compile.data.title}`)
+                        continue
+                    }
                     await fs.writeFile(jsonFilePath, JSON.stringify(compile, null, 2), 'utf-8')
 
                     const articleInfo: ArticleInfo = {
@@ -162,6 +167,7 @@ export default defineNitroPlugin(async () => {
                         description: compile.data.description,
                         updateAt: compile.data.updateAt,
                         createAt: compile.data.createAt,
+                        category: slug.substring(0, slug.indexOf('-'))
                     }
 
                     newArticles.push(articleInfo)

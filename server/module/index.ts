@@ -7,6 +7,8 @@ export interface ArticleInfo {
     tags: string[]
     updateAt: string
     createAt: string
+    category: string
+    hidden?: boolean
 }
 
 export interface ArticleInfoList {
