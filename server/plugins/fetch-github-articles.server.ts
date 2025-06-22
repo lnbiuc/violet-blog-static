@@ -143,12 +143,12 @@ export default defineNitroPlugin(async () => {
                     // Debug: 保存处理后的 markdown 文件
                     const debugFilePath = join(debugDir, `${filename}.md`)
                     await fs.writeFile(debugFilePath, processedContent, 'utf-8')
-                    console.log(`[nuxt] Debug: Saved processed markdown to ${filename}.md`)
+                    console.log(`[nuxt] Saved processed markdown to ${filename}.md`)
 
                     // 编译 markdown 为 JSON
-                    console.time(`compile-${filename}`)
+                    console.time(`[nuxt] compile-${filename}`)
                     const compile = await parseMarkdown(processedContent)
-                    console.timeEnd(`compile-${filename}`)
+                    console.timeEnd(`[nuxt] compile-${filename}`)
 
                     // 保存编译后的 JSON 文件
                     const jsonFilePath = join(contentDir, `${filename}.json`)
@@ -158,6 +158,10 @@ export default defineNitroPlugin(async () => {
                         name: extractFileName(file.path),
                         path: slug,
                         sha: file.sha,
+                        tags: compile.data.tags,
+                        description: compile.data.description,
+                        updateAt: compile.data.updateAt,
+                        createAt: compile.data.createAt,
                     }
 
                     newArticles.push(articleInfo)

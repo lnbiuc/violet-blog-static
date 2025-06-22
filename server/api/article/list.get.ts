@@ -1,30 +1,9 @@
 // server/api/articles.get.ts (或相应的API文件)
 import { CacheKey } from '~/server/module'
-
-interface ArticleInfo {
-    name: string
-    path: string
-    sha: string
-    filename: string
-}
-
-interface CacheManifest {
-    articles: ArticleInfo[]
-    lastUpdate: string
-}
-
-interface ArticleListItem {
-    name: string
-    slug: string
-}
+import type { CacheManifest } from '~/server/module'
 
 export default defineEventHandler(async (event) => {
     try {
-        // 读取 manifest.json 文件
-        // const contentDir = join(process.cwd(), 'public', 'content')
-        // const manifestPath = join(contentDir, 'manifest.json')
-
-        // const manifestContent = await fs.readFile(manifestPath, 'utf-8')
         
         const manifest = await storage.getItem<CacheManifest>(CacheKey.articleManifest)
         if (!manifest) {
@@ -33,20 +12,12 @@ export default defineEventHandler(async (event) => {
                 statusMessage: 'Invalid manifest file format'
             })
         }
-        // const manifest: CacheManifest = JSON.parse(manifestContent)
-        // 转换为前端需要的格式
-        const articleList: ArticleListItem[] = manifest.articles.map(article => ({
-            name: article.name,
-            slug: article.path
-        }))
 
-        // 设置响应头
         setHeader(event, 'Content-Type', 'application/json; charset=utf-8')
-        setHeader(event, 'Cache-Control', 'public, max-age=1800') // 缓存30分钟
 
         return {
-            articles: articleList,
-            total: articleList.length,
+            articles: manifest.articles,
+            total: manifest.articles.length,
             lastUpdate: manifest.lastUpdate
         }
 

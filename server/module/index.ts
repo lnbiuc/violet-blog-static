@@ -3,6 +3,16 @@ export interface ArticleInfo {
     name: string
     path: string
     sha: string
+    description: string
+    tags: string[]
+    updateAt: string
+    createAt: string
+}
+
+export interface ArticleInfoList {
+    articles: ArticleInfo[]
+    total: number
+    lastUpdate: string
 }
 
 export interface CacheManifest {
@@ -23,7 +33,7 @@ export interface ImageManifest {
 
 
 export const CacheKey = {
-  articleManifest: 'ARTICLE_MAINFEST',
-  ImageManifest: 'IMAGE_MAINFEST',
-  articleContent: 'ARTICLE_CONTENT_'
+    articleManifest: 'ARTICLE_MAINFEST',
+    ImageManifest: 'IMAGE_MAINFEST',
+    articleContent: 'ARTICLE_CONTENT_'
 }

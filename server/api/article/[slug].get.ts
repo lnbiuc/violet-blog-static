@@ -2,17 +2,7 @@
 
 // server/api/article/[slug].get.ts
 import { CacheKey } from '~/server/module'
-
-interface ArticleInfo {
-    name: string
-    path: string
-    sha: string
-}
-
-interface CacheManifest {
-    articles: ArticleInfo[]
-    lastUpdate: string
-}
+import type { CacheManifest } from '~/server/module'
 
 export default defineEventHandler(async (event) => {
     const slug = event.context.params?.slug
